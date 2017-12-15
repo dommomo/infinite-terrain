@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TerrainManager : MonoBehaviour {
 
-    public Sprite TileableImage;
+    public Sprite[] Sprites;
     public int HorizontalTiles = 25;
     public int VerticalTiles = 25;
 
@@ -20,16 +20,15 @@ public class TerrainManager : MonoBehaviour {
                 var tile = new GameObject();
                 tile.transform.position = new Vector3(x, y, 0) + offset;
                 var spriteRenderer = tile.AddComponent<SpriteRenderer>();
-                spriteRenderer.sprite = TileableImage;
+                spriteRenderer.sprite = SelectRandomSprite();
                 tile.name = "Terrain " + tile.transform.position;
                 tile.transform.parent = transform;
             }
         }
 	}
-	
-	// Update is called once per frame
-	void Update ()
+
+    public Sprite SelectRandomSprite()
     {
-		
-	}
+        return Sprites[Random.Range(0, Sprites.Length)];
+    }
 }
