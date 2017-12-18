@@ -16,6 +16,7 @@ public class TerrainManager : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
+        int sortIndex = 0;
         var offset = new Vector3(0 - HorizontalTiles / 2, 0 - VerticalTiles / 2, 0);
         _renderers = new SpriteRenderer[HorizontalTiles, VerticalTiles];
         for (int x = 0; x < HorizontalTiles; x++)
@@ -24,7 +25,8 @@ public class TerrainManager : MonoBehaviour {
             {
                 var tile = new GameObject();
                 tile.transform.position = new Vector3(x, y, 0) + offset;
-                _renderers[x, y] = tile.AddComponent<SpriteRenderer>();
+                var renderer = _renderers[x, y] = tile.AddComponent<SpriteRenderer>();
+                renderer.sortingOrder = sortIndex--;
                 tile.name = "Terrain " + tile.transform.position;
                 tile.transform.parent = transform;
             }
