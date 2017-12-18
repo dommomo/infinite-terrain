@@ -10,6 +10,8 @@ public class TerrainManager : MonoBehaviour {
     public int Key = 1;
     public Transform player;
     public float maxDistanceFromPlayer = 7;
+    public RuntimeAnimatorController waterAnimation;
+    public int waterTileIndex = -1;
 
     private SpriteRenderer[,] _renderers;
 
@@ -51,13 +53,35 @@ public class TerrainManager : MonoBehaviour {
             for (int y = 0; y < VerticalTiles; y++)
             {
                 var spriteRenderer = _renderers[x, y];
-                spriteRenderer.sprite = SelectRandomSprite((int)transform.position.x + x, (int)transform.position.y + y);
+                bool isWater = false;
+                spriteRenderer.sprite = SelectRandomSprite(
+                    (int)transform.position.x + x, 
+                    (int)transform.position.y + y,
+                    out isWater);
+                var animator = spriteRenderer.gameObject.GetComponent<Animator>();
+                if (isWater)
+                {
+                    if (animator == null)
+                    {
+                        animator = spriteRenderer.gameObject.AddComponent<Animator>();
+                        animator.runtimeAnimatorController = waterAnimation;
+                    }
+                }
+                else
+                {
+                    if (animator != null)
+                    {
+                        GameObject.Destroy(animator);
+                    }
+                }
             }
         }
     }
 
-    public Sprite SelectRandomSprite(int x, int y)
+    public Sprite SelectRandomSprite(int x, int y, out bool isWater)
     {
-        return Sprites[RandomHelper.Range(x, y, Key, Sprites.Length)];
+        int index = RandomHelper.Range(x, y, Key, Sprites.Length);
+        isWater = (waterTileIndex == index);
+        return Sprites[index];
     }
 }
