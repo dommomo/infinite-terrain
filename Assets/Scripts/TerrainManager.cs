@@ -7,6 +7,7 @@ public class TerrainManager : MonoBehaviour {
     public Sprite[] Sprites;
     public int HorizontalTiles = 25;
     public int VerticalTiles = 25;
+    public int Key = 1;
 
 	// Use this for initialization
 	void Start ()
@@ -20,15 +21,15 @@ public class TerrainManager : MonoBehaviour {
                 var tile = new GameObject();
                 tile.transform.position = new Vector3(x, y, 0) + offset;
                 var spriteRenderer = tile.AddComponent<SpriteRenderer>();
-                spriteRenderer.sprite = SelectRandomSprite();
+                spriteRenderer.sprite = SelectRandomSprite(x, y);
                 tile.name = "Terrain " + tile.transform.position;
                 tile.transform.parent = transform;
             }
         }
 	}
 
-    public Sprite SelectRandomSprite()
+    public Sprite SelectRandomSprite(int x, int y)
     {
-        return Sprites[Random.Range(0, Sprites.Length)];
+        return Sprites[RandomHelper.Range(x, y, Key, Sprites.Length)];
     }
 }
