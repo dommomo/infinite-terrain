@@ -28,13 +28,18 @@ public class Marker {
         return markers;
     }
 
-    public static Marker Closest(IEnumerable<Marker> markers, Vector2 location)
+    public static Marker Closest(IEnumerable<Marker> markers, Vector2 location, int key)
     {
         Marker selected = null;
         float closest = float.MaxValue;
         foreach (var marker in markers)
         {
+            float rand = RandomHelper.Percent(
+                (int) (marker.Location.x + location.x),
+                (int) (marker.Location.y + location.y),
+                key) *  8;
             float distance = Vector2.Distance(marker.Location, location);
+            distance -= rand;
             if (distance < closest)
             {
                 closest = distance;

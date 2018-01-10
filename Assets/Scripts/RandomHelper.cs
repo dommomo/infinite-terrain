@@ -26,4 +26,8 @@ public class RandomHelper {
         return Range((int)x, (int)y, key, range);
     }
 
+    public static float Percent(int x, int y, int key)
+    {
+        return (float)Range(x, y, key, int.MaxValue) / (float)int.MaxValue; 
+    }
 }

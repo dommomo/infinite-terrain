@@ -95,7 +95,7 @@ public class TerrainManager : MonoBehaviour {
     public Sprite SelectRandomSprite(float x, float y, out bool isWater)
     {
         //int index = RandomHelper.Range(x, y, Key, Sprites.Length);
-        var marker = Marker.Closest(_markers, new Vector2(x, y));
+        var marker = Marker.Closest(_markers, new Vector2(x, y), Key);
         isWater = (waterTileIndex == marker.TerrainType);
         return Sprites[marker.TerrainType];
     }
