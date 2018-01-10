@@ -22,9 +22,9 @@ public class MarkBlockedTiles : MonoBehaviour {
                 Vector3 worldPos = new Vector3(x, y, 0);
                 var mapPos = Terrain_Manager.WorldToMapPosition(worldPos);
                 bool isBlocked = false;
-                Terrain_Manager.SelectRandomSprite(mapPos.x, mapPos.y, out isBlocked);
+                var terrain = Terrain_Manager.SelectTerrain(mapPos.x, mapPos.y);
 
-                if (isBlocked)
+                if (terrain.NotWalkable)
                 {
                     UnityEditor.Handles.DrawWireDisc(worldPos, Vector3.back, radius);
                 }

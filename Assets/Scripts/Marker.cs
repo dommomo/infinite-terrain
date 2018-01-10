@@ -7,7 +7,7 @@ public class Marker {
     public Vector2 Location { get; set; }
     public int TerrainType { get; set; }
 
-    public static IEnumerable<Marker> GetMarkers(float x, float y, TerrainManager terrain)
+    public static IEnumerable<Marker> GetMarkers(float x, float y, int key, int terrainTypeLength)
     {
         var markers = new Marker[9];
         x = (int)x >> 4;
@@ -20,7 +20,7 @@ public class Marker {
             {
                 markers[markerIndex++] = new Marker()
                 {
-                    TerrainType = RandomHelper.Range(x + iX, y + iY, terrain.Key, terrain.Sprites.Length),
+                    TerrainType = RandomHelper.Range(x + iX, y + iY, key, terrainTypeLength),
                     Location = new Vector2((int)(x + iX) << 4, (int)(y + iY) << 4)
                 };
             }

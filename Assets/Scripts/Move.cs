@@ -33,10 +33,9 @@ public class Move : MonoBehaviour {
         //check if blocked tile
         Vector3 currentPos = transform.position;
         var mapPos = Terrain_Manager.WorldToMapPosition(currentPos);
-        bool isBlocked = false;
-        Terrain_Manager.SelectRandomSprite(mapPos.x, mapPos.y, out isBlocked);
+        var terrain = Terrain_Manager.SelectTerrain(mapPos.x, mapPos.y);
 
-        if (isBlocked)
+        if (terrain.NotWalkable)
         {
             transform.position = currentPos = previousPosition;
         }

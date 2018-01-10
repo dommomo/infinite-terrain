@@ -4,15 +4,13 @@ using UnityEngine;
 
 public class TerrainManager : MonoBehaviour {
 
-    public Sprite[] Sprites;
     public int HorizontalTiles = 25;
     public int VerticalTiles = 25;
     public int Key = 1;
     public Transform player;
     public float maxDistanceFromPlayer = 7;
-    public RuntimeAnimatorController waterAnimation;
-    public int waterTileIndex = -1;
     public Vector2 MapOffset;
+    public TerrainType[] TerrainTypes;
 
     private SpriteRenderer[,] _renderers;
     private IEnumerable<Marker> _markers;
@@ -57,7 +55,7 @@ public class TerrainManager : MonoBehaviour {
     void RedrawMap()
     {
         transform.position = new Vector3((int)player.position.x, (int)player.position.y, player.position.z);
-        _markers = Marker.GetMarkers(transform.position.x, transform.position.y, this);
+        _markers = Marker.GetMarkers(transform.position.x, transform.position.y, Key, TerrainTypes.Length);
         var offset = new Vector3(
             transform.position.x - HorizontalTiles / 2, 
             transform.position.y - VerticalTiles / 2, 
@@ -67,18 +65,17 @@ public class TerrainManager : MonoBehaviour {
             for (int y = 0; y < VerticalTiles; y++)
             {
                 var spriteRenderer = _renderers[x, y];
-                bool isWater = false;
-                spriteRenderer.sprite = SelectRandomSprite(
+                var terrain = SelectTerrain(
                     offset.x + x, 
-                    offset.y + y,
-                    out isWater);
+                    offset.y + y);
+                spriteRenderer.sprite = terrain.GetTile(offset.x + x, offset.y + y, Key);
                 var animator = spriteRenderer.gameObject.GetComponent<Animator>();
-                if (isWater)
+                if (terrain.IsAnimated)
                 {
                     if (animator == null)
                     {
                         animator = spriteRenderer.gameObject.AddComponent<Animator>();
-                        animator.runtimeAnimatorController = waterAnimation;
+                        animator.runtimeAnimatorController = terrain.animationController;
                     }
                 }
                 else
@@ -92,11 +89,10 @@ public class TerrainManager : MonoBehaviour {
         }
     }
 
-    public Sprite SelectRandomSprite(float x, float y, out bool isWater)
+    public TerrainType SelectTerrain(float x, float y)
     {
         //int index = RandomHelper.Range(x, y, Key, Sprites.Length);
         var marker = Marker.Closest(_markers, new Vector2(x, y), Key);
-        isWater = (waterTileIndex == marker.TerrainType);
-        return Sprites[marker.TerrainType];
+        return TerrainTypes[marker.TerrainType];
     }
 }
