@@ -12,6 +12,7 @@ public class TerrainManager : MonoBehaviour {
     public float maxDistanceFromPlayer = 7;
     public RuntimeAnimatorController waterAnimation;
     public int waterTileIndex = -1;
+    public Vector2 MapOffset;
 
     private SpriteRenderer[,] _renderers;
 
@@ -45,9 +46,20 @@ public class TerrainManager : MonoBehaviour {
         }
     }
 
+    public Vector2 WorldToMapPosition(Vector3 worldPosition)
+    {
+        if (worldPosition.x < 0) worldPosition.x--;
+        if (worldPosition.y < 0) worldPosition.y--;
+        return new Vector2((int) (worldPosition.x + MapOffset.x), (int) (worldPosition.y + MapOffset.y));
+    }
+
     void RedrawMap()
     {
         transform.position = new Vector3((int)player.position.x, (int)player.position.y, player.position.z);
+        var offset = new Vector3(
+            transform.position.x - HorizontalTiles / 2, 
+            transform.position.y - VerticalTiles / 2, 
+            0);
         for (int x = 0; x < HorizontalTiles; x++)
         {
             for (int y = 0; y < VerticalTiles; y++)
@@ -55,8 +67,8 @@ public class TerrainManager : MonoBehaviour {
                 var spriteRenderer = _renderers[x, y];
                 bool isWater = false;
                 spriteRenderer.sprite = SelectRandomSprite(
-                    (int)transform.position.x + x, 
-                    (int)transform.position.y + y,
+                    offset.x + x, 
+                    offset.y + y,
                     out isWater);
                 var animator = spriteRenderer.gameObject.GetComponent<Animator>();
                 if (isWater)
@@ -78,7 +90,7 @@ public class TerrainManager : MonoBehaviour {
         }
     }
 
-    public Sprite SelectRandomSprite(int x, int y, out bool isWater)
+    public Sprite SelectRandomSprite(float x, float y, out bool isWater)
     {
         int index = RandomHelper.Range(x, y, Key, Sprites.Length);
         isWater = (waterTileIndex == index);
