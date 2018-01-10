@@ -15,6 +15,7 @@ public class TerrainManager : MonoBehaviour {
     public Vector2 MapOffset;
 
     private SpriteRenderer[,] _renderers;
+    private IEnumerable<Marker> _markers;
 
 	// Use this for initialization
 	void Start ()
@@ -56,6 +57,7 @@ public class TerrainManager : MonoBehaviour {
     void RedrawMap()
     {
         transform.position = new Vector3((int)player.position.x, (int)player.position.y, player.position.z);
+        _markers = Marker.GetMarkers(transform.position.x, transform.position.y, this);
         var offset = new Vector3(
             transform.position.x - HorizontalTiles / 2, 
             transform.position.y - VerticalTiles / 2, 
@@ -92,8 +94,9 @@ public class TerrainManager : MonoBehaviour {
 
     public Sprite SelectRandomSprite(float x, float y, out bool isWater)
     {
-        int index = RandomHelper.Range(x, y, Key, Sprites.Length);
-        isWater = (waterTileIndex == index);
-        return Sprites[index];
+        //int index = RandomHelper.Range(x, y, Key, Sprites.Length);
+        var marker = Marker.Closest(_markers, new Vector2(x, y));
+        isWater = (waterTileIndex == marker.TerrainType);
+        return Sprites[marker.TerrainType];
     }
 }
