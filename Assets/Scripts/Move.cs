@@ -35,7 +35,7 @@ public class Move : MonoBehaviour {
         var mapPos = Terrain_Manager.WorldToMapPosition(currentPos);
         var terrain = Terrain_Manager.SelectTerrain(mapPos.x, mapPos.y);
 
-        if (terrain.NotWalkable)
+        if (terrain.NotWalkable || Terrain_Manager.isInBuilding(mapPos))
         {
             transform.position = currentPos = previousPosition;
         }

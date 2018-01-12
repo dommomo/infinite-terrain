@@ -48,6 +48,20 @@ public class TerrainManager : MonoBehaviour {
         }
     }
 
+    public bool isInBuilding(Vector2 mapPos)
+    {
+        foreach (var building in _buildings)
+        {
+            var bLoc = building.transform.position;
+            if (mapPos.x >= bLoc.x - 1 && mapPos.y >= bLoc.y - 1
+                && mapPos.x < bLoc.x && mapPos.y < bLoc.y)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Vector2 WorldToMapPosition(Vector3 worldPosition)
     {
         if (worldPosition.x < 0) worldPosition.x--;

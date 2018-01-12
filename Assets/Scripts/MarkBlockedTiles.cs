@@ -24,7 +24,7 @@ public class MarkBlockedTiles : MonoBehaviour {
                 bool isBlocked = false;
                 var terrain = Terrain_Manager.SelectTerrain(mapPos.x, mapPos.y);
 
-                if (terrain.NotWalkable)
+                if (terrain.NotWalkable || Terrain_Manager.isInBuilding(mapPos))
                 {
                     UnityEditor.Handles.DrawWireDisc(worldPos, Vector3.back, radius);
                 }
