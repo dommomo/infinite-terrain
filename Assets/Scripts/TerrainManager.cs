@@ -11,9 +11,12 @@ public class TerrainManager : MonoBehaviour {
     public float maxDistanceFromPlayer = 7;
     public Vector2 MapOffset;
     public TerrainType[] TerrainTypes;
+    public Sprite[] Buildings;
+    public float cityChance = 0.30f;
 
     private SpriteRenderer[,] _renderers;
     private IEnumerable<Marker> _markers;
+    private List<GameObject> _buildings = new List<GameObject>();
 
 	// Use this for initialization
 	void Start ()
@@ -52,10 +55,27 @@ public class TerrainManager : MonoBehaviour {
         return new Vector2((int) (worldPosition.x + MapOffset.x), (int) (worldPosition.y + MapOffset.y));
     }
 
+    void LoadCity(Marker marker)
+    {
+        if (!marker.isCity) return;
+
+        var building = new GameObject();
+        _buildings.Add(building);
+
+        building.transform.position = new Vector3(marker.location.x, marker.location.y, 0.01f);
+        var renderer = building.AddComponent<SpriteRenderer>();
+        renderer.sprite = Buildings[RandomHelper.Range(marker.location.x, 
+                                                       marker.location.y, 
+                                                       Key, 
+                                                       Buildings.Length)];
+        building.transform.parent = transform;
+        building.name = "Building " + building.transform.position; 
+    }
+
     void RedrawMap()
     {
         transform.position = new Vector3((int)player.position.x, (int)player.position.y, player.position.z);
-        _markers = Marker.GetMarkers(transform.position.x, transform.position.y, Key, TerrainTypes.Length);
+        _markers = Marker.GetMarkers(transform.position.x, transform.position.y, Key, TerrainTypes, cityChance);
         var offset = new Vector3(
             transform.position.x - HorizontalTiles / 2, 
             transform.position.y - VerticalTiles / 2, 
@@ -87,12 +107,21 @@ public class TerrainManager : MonoBehaviour {
                 }
             }
         }
+
+        //_buildings.ForEach(x => (Destroy(x)));
+        foreach (var building in _buildings)
+        {
+            Destroy(building);
+        }
+        _buildings.Clear();
+        foreach (var marker in _markers)
+        {
+            LoadCity(marker);
+        }
     }
 
     public TerrainType SelectTerrain(float x, float y)
     {
-        //int index = RandomHelper.Range(x, y, Key, Sprites.Length);
-        var marker = Marker.Closest(_markers, new Vector2(x, y), Key);
-        return TerrainTypes[marker.TerrainType];
+        return Marker.Closest(_markers, new Vector2(x, y), Key).terrain;
     }
 }

@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class Marker {
 
-    public Vector2 Location { get; set; }
-    public int TerrainType { get; set; }
+    public Vector2 location { get; set; }
+    public TerrainType terrain { get; set; }
+    public bool isCity { get; set; } 
 
-    public static IEnumerable<Marker> GetMarkers(float x, float y, int key, int terrainTypeLength)
+    public static IEnumerable<Marker> GetMarkers(float x, float y, int key, TerrainType[] terrains, float cityChance)
     {
         var markers = new Marker[9];
         x = (int)x >> 4;
@@ -18,10 +19,13 @@ public class Marker {
         {
             for (int iY = -1; iY < 2; iY++)
             {
+                var terrainRand = terrains[RandomHelper.Range(x + iX, y + iY, key, terrains.Length)];
+                bool isCityRand = !terrainRand.NotWalkable && cityChance > RandomHelper.Percent(x + iX, y + iY, key);
                 markers[markerIndex++] = new Marker()
                 {
-                    TerrainType = RandomHelper.Range(x + iX, y + iY, key, terrainTypeLength),
-                    Location = new Vector2((int)(x + iX) << 4, (int)(y + iY) << 4)
+                    location = new Vector2((int)(x + iX) << 4, (int)(y + iY) << 4),
+                    terrain = terrainRand,
+                    isCity = isCityRand
                 };
             }
         }
@@ -35,10 +39,10 @@ public class Marker {
         foreach (var marker in markers)
         {
             float rand = RandomHelper.Percent(
-                (int) (marker.Location.x + location.x),
-                (int) (marker.Location.y + location.y),
+                (int) (marker.location.x + location.x),
+                (int) (marker.location.y + location.y),
                 key) *  8;
-            float distance = Vector2.Distance(marker.Location, location);
+            float distance = Vector2.Distance(marker.location, location);
             distance -= rand;
             if (distance < closest)
             {
