@@ -22,7 +22,7 @@ public class Marker {
             {
                 var terrainRand = terrains[RandomHelper.Range(x + iX, y + iY, key, terrains.Length)];
                 bool isCityRand = !terrainRand.NotWalkable && cityChance > RandomHelper.Percent(x + iX, y + iY, key);
-                float massRand = RandomHelper.Percent(x + iX, y + iY, key) * 8 + 2; //between 2 and 10
+                float massRand = RandomHelper.Percent(x + iX, y + iY, key) * 5 + 2; //between 2 and 7
                 markers[markerIndex++] = new Marker()
                 {
                     location = new Vector2((int)(x + iX) << 4, (int)(y + iY) << 4),

@@ -21,6 +21,11 @@ public class RandomHelper {
 
     }
 
+    public static bool TrueFalse(Vector2 location, int key)
+    {
+        return Range(location, key, int.MaxValue) > int.MaxValue / 2;
+    }
+
     public static int Range(Vector2 location, int key, float range)
     {
         return Range(location.x, location.y, key, (int)range);

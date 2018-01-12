@@ -94,6 +94,22 @@ public class TerrainManager : MonoBehaviour {
                 addAt[x1, y] = true;
                 addAt[x2, y] = true;
             }
+            if(RandomHelper.TrueFalse(marker.location, Key + iArea))
+            {
+                int removeX = RandomHelper.Range(marker.location, iArea - Key, x2 - x1) + x1;
+                for (int y = 0; y < cityMass * 2; y++)
+                {
+                    addAt[removeX, y] = false;
+                }
+            }
+            else
+            {
+                int removeY = RandomHelper.Range(marker.location, iArea + Key, y2 - y1) + y1;
+                for (int x = 0; x < cityMass * 2; x++)
+                {
+                    addAt[x, removeY] = false;
+                }
+            }
         }
 
         for (int x = 0; x < cityMass * 2; x++)
