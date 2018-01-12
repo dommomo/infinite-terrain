@@ -59,17 +59,63 @@ public class TerrainManager : MonoBehaviour {
     {
         if (!marker.isCity) return;
 
-        var building = new GameObject();
-        _buildings.Add(building);
+        int cityMass = (int)marker.cityMass;
+        bool[,] addAt = new bool[cityMass * 2, cityMass * 2];
 
-        building.transform.position = new Vector3(marker.location.x, marker.location.y, 0.01f);
-        var renderer = building.AddComponent<SpriteRenderer>();
-        renderer.sprite = Buildings[RandomHelper.Range(marker.location.x, 
-                                                       marker.location.y, 
-                                                       Key, 
-                                                       Buildings.Length)];
-        building.transform.parent = transform;
-        building.name = "Building " + building.transform.position; 
+        for (int iArea = 0; iArea < cityMass; iArea++)
+        {
+            int x1 = RandomHelper.Range(
+                marker.location.x + iArea,
+                marker.location.y,
+                Key,
+                cityMass);
+            int y1 = RandomHelper.Range(
+                marker.location.x,
+                marker.location.y + iArea,
+                Key,
+                cityMass);
+            int x2 = RandomHelper.Range(
+                marker.location.x + iArea,
+                marker.location.y - iArea,
+                Key,
+                cityMass) + cityMass;
+            int y2 = RandomHelper.Range(
+                marker.location.x -iArea,
+                marker.location.y + iArea,
+                Key,
+                cityMass) + cityMass;
+            for (int x = x1; x < x2 + 1; x++)
+            {
+                addAt[x, y1] = true;
+                addAt[x, y2] = true;
+            }
+            for (int y = y1; y < y2 + 1; y++)
+            {
+                addAt[x1, y] = true;
+                addAt[x2, y] = true;
+            }
+        }
+
+        for (int x = 0; x < cityMass * 2; x++)
+        {
+            for (int y = 0; y < cityMass * 2; y++)
+            {
+                if (!addAt[x, y]) continue; //skip code if this one blank
+                var building = new GameObject();
+                _buildings.Add(building);
+
+                building.transform.position = new Vector3(
+                    marker.location.x - marker.cityMass + x,
+                    marker.location.y - marker.cityMass + y,
+                    0.01f);
+                var renderer = building.AddComponent<SpriteRenderer>();
+                renderer.sprite = Buildings[RandomHelper.Range(building.transform.position,
+                                                               Key,
+                                                               Buildings.Length)];
+                building.transform.parent = transform;
+                building.name = "Building " + building.transform.position;
+            }
+        }   
     }
 
     void RedrawMap()
@@ -108,11 +154,7 @@ public class TerrainManager : MonoBehaviour {
             }
         }
 
-        //_buildings.ForEach(x => (Destroy(x)));
-        foreach (var building in _buildings)
-        {
-            Destroy(building);
-        }
+        _buildings.ForEach(x => Destroy(x));
         _buildings.Clear();
         foreach (var marker in _markers)
         {

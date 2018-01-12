@@ -21,6 +21,11 @@ public class RandomHelper {
 
     }
 
+    public static int Range(Vector2 location, int key, float range)
+    {
+        return Range(location.x, location.y, key, (int)range);
+    }
+
     public static int Range(float x, float y, int key, int range)
     {
         return Range((int)x, (int)y, key, range);
