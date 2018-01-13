@@ -43,6 +43,12 @@ public class Move : MonoBehaviour {
         }
         if (building != null && building.BuildingTypeInUse.IsEnterable)
         {
+            GameObject go = new GameObject();
+            var starter = go.AddComponent<InsideBuildingStarter>();
+            starter.Key = Terrain_Manager.Key;
+            starter.MapPosition = mapPos;
+            GameObject.DontDestroyOnLoad(go);
+            go.name = "Inside Building Starter";
             SceneManager.LoadScene(Terrain_Manager.SceneNameForInsideBuilding);
         }
         previousPosition = currentPos;
