@@ -8,6 +8,11 @@ public class BuildingInterior : MonoBehaviour {
     public Vector2 MapPosition = Vector2.zero;
     public int Key = 0;
     public Sprite floor;
+    public Transform Player;
+
+    private int _maxWidth;
+    private int _maxHeight;
+    private int _randomIndex = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -29,20 +34,54 @@ public class BuildingInterior : MonoBehaviour {
 
     void GenerateInterior()
     {
-        var width = RandomHelper.Range(MapPosition, Key, 5) + 3; //3 to 8
-        var height = RandomHelper.Range(MapPosition, Key + 1, 5) + 3; //3 to 8
+        List<Vector3> applied = new List<Vector3>();
 
-        for (int x = 0; x < width; x++)
+        _maxWidth = Range(12) + 8;  //8 to 20
+        _maxHeight = Range(12) + 8;
+        int roomCount = Range(4) + 1;
+
+        var prevRoom = RandomRoom();
+        for (int roomIndex = 0; roomIndex < roomCount; roomIndex++)
         {
-            for (int y = 0; y < height; y++)
+            var newRoom = RandomRoom();
+            if(!newRoom.Overlaps(prevRoom))
             {
-                var tile = new GameObject();
-                tile.transform.position = new Vector3(x, y, 0);
-                var renderer = tile.AddComponent<SpriteRenderer>();
-                renderer.sprite = floor;
-                tile.transform.parent = transform;
-                tile.name = "Tile " + tile.transform.position;
+                roomCount++;
+                continue;
+            }
+
+            for (int x = 0; x < newRoom.width; x++)
+            {
+                for (int y = 0; y < newRoom.height; y++)
+                {
+                    var pos = new Vector3(newRoom.x + x, newRoom.y + y, 0);
+                    if (applied.Contains(pos)) continue;
+                    applied.Add(pos);
+                    var tile = new GameObject();
+                    tile.transform.position = pos;
+                    var renderer = tile.AddComponent<SpriteRenderer>();
+                    renderer.sprite = floor;
+                    tile.transform.parent = transform;
+                    tile.name = "Tile " + tile.transform.position;
+                }
             }
         }
+        //move player to starting spot in room
+        var position = applied[0];
+        position.z = Player.position.z;
+        Player.position = position;
+    }
+
+    private int Range(int max)
+    {
+        return RandomHelper.Range(MapPosition, Key + _randomIndex++, max);
+    }
+
+    private Rect RandomRoom()
+    {
+        return new Rect(Range(_maxWidth / 2),
+                        Range(_maxHeight / 2),
+                        Range(_maxWidth / 4) + _maxWidth / 4,
+                        Range(_maxHeight / 4) + _maxHeight / 4);
     }
 }
