@@ -22,6 +22,13 @@ public class TerrainManager : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
+        var starter = GameObject.FindObjectOfType<TerrainStarter>();
+        if (starter != null)
+        {
+            player.position = starter.PreviousPosition;
+            Destroy(starter.gameObject);
+        }
+
         int sortIndex = 0;
         var offset = new Vector3(0 - HorizontalTiles / 2, 0 - VerticalTiles / 2, 0);
         _renderers = new SpriteRenderer[HorizontalTiles, VerticalTiles];

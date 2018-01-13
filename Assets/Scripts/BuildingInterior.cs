@@ -5,13 +5,17 @@ using UnityEngine;
 
 public class BuildingInterior : MonoBehaviour {
 
+    public Vector3 PreviousPosition = Vector3.zero;
     public Vector2 MapPosition = Vector2.zero;
     public int Key = 0;
     public Sprite floor;
     public Sprite wall;
+    public Sprite door;
     public Transform Player;
+    public int SceneIdForTerrainView = 0;
 
     private List<Rect> _walls = new List<Rect>();
+    private Rect _exit;
     private int _maxWidth;
     private int _maxHeight;
     private int _randomIndex = 0;
@@ -25,6 +29,7 @@ public class BuildingInterior : MonoBehaviour {
         }
         MapPosition = info.MapPosition;
         Key = info.Key;
+        PreviousPosition = info.PreviousPosition;
         Destroy(info.gameObject);
         GenerateInterior();
 	}
@@ -43,10 +48,16 @@ public class BuildingInterior : MonoBehaviour {
         return false;
     }
 
+    public bool IsExiting(Rect area)
+    {
+        return _exit.Overlaps(area);
+    }
+
     void GenerateInterior()
     {
         List<Vector3> applied = new List<Vector3>();
         List<Vector3> walls = new List<Vector3>();
+        Vector3 lowest = new Vector3(0, int.MaxValue, 0);
 
         _maxWidth = Range(12) + 8;  //8 to 20
         _maxHeight = Range(12) + 8;
@@ -69,6 +80,7 @@ public class BuildingInterior : MonoBehaviour {
                     var pos = new Vector3(newRoom.x + x, newRoom.y + y, 0);
                     if (applied.Contains(pos)) continue;
                     applied.Add(pos);
+                    if (lowest.y > pos.y) lowest = pos; //set new low - we need to find lowest in order to place door
 
                     walls.AddRange(new Vector3[]
                         {
@@ -102,8 +114,15 @@ public class BuildingInterior : MonoBehaviour {
             renderer.sprite = wall;
             tile.transform.parent = transform;
             tile.name = "Wall " + tile.transform.position;
-
-            _walls.Add(new Rect(wallPos, Vector2.one));
+            if (wallPos + Vector3.up == lowest)
+            {
+                renderer.sprite = door;
+                _exit = new Rect(wallPos, Vector3.one);
+            }
+            else
+            {
+                _walls.Add(new Rect(wallPos, Vector2.one));
+            }
         }
         //move player to starting spot in room
         var position = applied[0];

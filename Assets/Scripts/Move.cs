@@ -47,6 +47,7 @@ public class Move : MonoBehaviour {
             var starter = go.AddComponent<InsideBuildingStarter>();
             starter.Key = Terrain_Manager.Key;
             starter.MapPosition = mapPos;
+            starter.PreviousPosition = previousPosition;
             GameObject.DontDestroyOnLoad(go);
             go.name = "Inside Building Starter";
             SceneManager.LoadScene(Terrain_Manager.SceneNameForInsideBuilding);
