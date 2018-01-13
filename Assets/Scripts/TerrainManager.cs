@@ -18,10 +18,12 @@ public class TerrainManager : MonoBehaviour {
     private SpriteRenderer[,] _renderers;
     private IEnumerable<Marker> _markers;
     private List<ActiveBuildingType> _buildings = new List<ActiveBuildingType>();
+    private Cache _cache;
 
 	// Use this for initialization
 	void Start ()
     {
+        _cache = Cache.Get();
         var starter = GameObject.FindObjectOfType<TerrainStarter>();
         if (starter != null)
         {
@@ -139,24 +141,31 @@ public class TerrainManager : MonoBehaviour {
             for (int y = 0; y < cityMass * 2; y++)
             {
                 if (!addAt[x, y]) continue; //skip code if this one blank
-                var building = new GameObject();
-                var active = building.AddComponent<ActiveBuildingType>();
-                _buildings.Add(active);
-
-                building.transform.position = new Vector3(
-                    marker.location.x - marker.cityMass + x,
-                    marker.location.y - marker.cityMass + y,
-                    0.01f);
-                var renderer = building.AddComponent<SpriteRenderer>();
-                var buildingInfo = BuildingTypes[RandomHelper.Range(building.transform.position,
-                                                               Key,
-                                                               BuildingTypes.Length)];
-                renderer.sprite = buildingInfo.Tile;
-                active.BuildingTypeInUse = buildingInfo;
-                building.transform.parent = transform;
-                building.name = "Building " + building.transform.position;
+                CreateBuilding(new Vector3(
+                            marker.location.x - marker.cityMass + x,
+                            marker.location.y - marker.cityMass + y,
+                            0.01f));
             }
         }   
+    }
+
+    public ActiveBuildingType CreateBuilding(Vector3 location)
+    {
+        var building = new GameObject();
+        var active = building.AddComponent<ActiveBuildingType>();
+        _buildings.Add(active);
+
+        building.transform.position = location;
+        var renderer = building.AddComponent<SpriteRenderer>();
+        var buildingInfo = BuildingTypes[RandomHelper.Range(building.transform.position,
+                                                       Key,
+                                                       BuildingTypes.Length)];
+        renderer.sprite = buildingInfo.Tile;
+        active.BuildingTypeInUse = buildingInfo;
+        building.transform.parent = transform;
+        building.name = "Building " + building.transform.position;
+
+        return active;
     }
 
     void RedrawMap()
@@ -200,6 +209,10 @@ public class TerrainManager : MonoBehaviour {
         foreach (var marker in _markers)
         {
             LoadCity(marker);
+        }
+        foreach (var item in _cache.Get("Building", transform.position, HorizontalTiles / 2))
+        {
+            CreateBuilding(item.Location);
         }
     }
 
