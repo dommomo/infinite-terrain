@@ -8,8 +8,10 @@ public class BuildingInterior : MonoBehaviour {
     public Vector2 MapPosition = Vector2.zero;
     public int Key = 0;
     public Sprite floor;
+    public Sprite wall;
     public Transform Player;
 
+    private List<Rect> _walls = new List<Rect>();
     private int _maxWidth;
     private int _maxHeight;
     private int _randomIndex = 0;
@@ -32,9 +34,19 @@ public class BuildingInterior : MonoBehaviour {
 		
 	}
 
+    public bool IsBlocked(Rect area)
+    {
+        foreach (var wall in _walls)
+        {
+            if (wall.Overlaps(area)) return true;
+        }
+        return false;
+    }
+
     void GenerateInterior()
     {
         List<Vector3> applied = new List<Vector3>();
+        List<Vector3> walls = new List<Vector3>();
 
         _maxWidth = Range(12) + 8;  //8 to 20
         _maxHeight = Range(12) + 8;
@@ -57,14 +69,41 @@ public class BuildingInterior : MonoBehaviour {
                     var pos = new Vector3(newRoom.x + x, newRoom.y + y, 0);
                     if (applied.Contains(pos)) continue;
                     applied.Add(pos);
+
+                    walls.AddRange(new Vector3[]
+                        {
+                            pos + Vector3.up,
+                            pos + Vector3.down,
+                            pos + Vector3.left,
+                            pos + Vector3.right,
+                            pos + Vector3.up + Vector3.left,
+                            pos + Vector3.down + Vector3.left,
+                            pos + Vector3.up + Vector3.right,
+                            pos + Vector3.down + Vector3.right,
+                        });
+
                     var tile = new GameObject();
                     tile.transform.position = pos;
                     var renderer = tile.AddComponent<SpriteRenderer>();
                     renderer.sprite = floor;
                     tile.transform.parent = transform;
-                    tile.name = "Tile " + tile.transform.position;
+                    tile.name = "Floor " + tile.transform.position;
                 }
             }
+        }
+        //fill in walls
+        foreach (var wallPos in walls)
+        {
+            if (applied.Contains(wallPos)) continue;
+            applied.Add(wallPos);
+            var tile = new GameObject();
+            tile.transform.position = wallPos;
+            var renderer = tile.AddComponent<SpriteRenderer>();
+            renderer.sprite = wall;
+            tile.transform.parent = transform;
+            tile.name = "Wall " + tile.transform.position;
+
+            _walls.Add(new Rect(wallPos, Vector2.one));
         }
         //move player to starting spot in room
         var position = applied[0];

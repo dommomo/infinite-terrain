@@ -9,6 +9,7 @@ public class MoveInside : MonoBehaviour {
     public float fastSpeed = 3;
     public KeyCode EnableFastSpeed = KeyCode.LeftShift;
     public Transform turnWithMovement;
+    public BuildingInterior Building;
     private Vector3 previousPosition = Vector3.zero;
 
 	// Use this for initialization
@@ -32,6 +33,10 @@ public class MoveInside : MonoBehaviour {
 
         //check if blocked tile
         Vector3 currentPos = transform.position;
+        if (Building.IsBlocked(new Rect(currentPos, Vector2.one)))
+        {
+            transform.position = currentPos = previousPosition;
+        }
         previousPosition = currentPos;
     }
 }
