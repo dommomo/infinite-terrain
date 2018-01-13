@@ -11,12 +11,13 @@ public class TerrainManager : MonoBehaviour {
     public float maxDistanceFromPlayer = 7;
     public Vector2 MapOffset;
     public TerrainType[] TerrainTypes;
-    public Sprite[] Buildings;
+    public BuildingType[] BuildingTypes;
     public float cityChance = 0.30f;
+    public string SceneNameForInsideBuilding = "InsideBuilding";
 
     private SpriteRenderer[,] _renderers;
     private IEnumerable<Marker> _markers;
-    private List<GameObject> _buildings = new List<GameObject>();
+    private List<ActiveBuildingType> _buildings = new List<ActiveBuildingType>();
 
 	// Use this for initialization
 	void Start ()
@@ -48,7 +49,7 @@ public class TerrainManager : MonoBehaviour {
         }
     }
 
-    public bool isInBuilding(Vector2 mapPos)
+    public ActiveBuildingType GetBuilding(Vector2 mapPos)
     {
         foreach (var building in _buildings)
         {
@@ -56,10 +57,10 @@ public class TerrainManager : MonoBehaviour {
             if (mapPos.x >= bLoc.x - 1 && mapPos.y >= bLoc.y - 1
                 && mapPos.x < bLoc.x && mapPos.y < bLoc.y)
             {
-                return true;
+                return building;
             }
         }
-        return false;
+        return null;
     }
 
     public Vector2 WorldToMapPosition(Vector3 worldPosition)
@@ -132,16 +133,19 @@ public class TerrainManager : MonoBehaviour {
             {
                 if (!addAt[x, y]) continue; //skip code if this one blank
                 var building = new GameObject();
-                _buildings.Add(building);
+                var active = building.AddComponent<ActiveBuildingType>();
+                _buildings.Add(active);
 
                 building.transform.position = new Vector3(
                     marker.location.x - marker.cityMass + x,
                     marker.location.y - marker.cityMass + y,
                     0.01f);
                 var renderer = building.AddComponent<SpriteRenderer>();
-                renderer.sprite = Buildings[RandomHelper.Range(building.transform.position,
+                var buildingInfo = BuildingTypes[RandomHelper.Range(building.transform.position,
                                                                Key,
-                                                               Buildings.Length)];
+                                                               BuildingTypes.Length)];
+                renderer.sprite = buildingInfo.Tile;
+                active.BuildingTypeInUse = buildingInfo;
                 building.transform.parent = transform;
                 building.name = "Building " + building.transform.position;
             }
@@ -184,7 +188,7 @@ public class TerrainManager : MonoBehaviour {
             }
         }
 
-        _buildings.ForEach(x => Destroy(x));
+        _buildings.ForEach(x => Destroy(x.gameObject));
         _buildings.Clear();
         foreach (var marker in _markers)
         {

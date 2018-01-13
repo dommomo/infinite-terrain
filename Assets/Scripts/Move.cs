@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Move : MonoBehaviour {
 
@@ -34,10 +35,15 @@ public class Move : MonoBehaviour {
         Vector3 currentPos = transform.position;
         var mapPos = Terrain_Manager.WorldToMapPosition(currentPos);
         var terrain = Terrain_Manager.SelectTerrain(mapPos.x, mapPos.y);
+        var building = Terrain_Manager.GetBuilding(mapPos);
 
-        if (terrain.NotWalkable || Terrain_Manager.isInBuilding(mapPos))
+        if (terrain.NotWalkable || (building != null && !building.BuildingTypeInUse.IsEnterable))
         {
             transform.position = currentPos = previousPosition;
+        }
+        if (building != null && building.BuildingTypeInUse.IsEnterable)
+        {
+            SceneManager.LoadScene(Terrain_Manager.SceneNameForInsideBuilding);
         }
         previousPosition = currentPos;
     }
